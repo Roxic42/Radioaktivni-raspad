@@ -1,12 +1,14 @@
 import random
 import math
 import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+import numpy as np
 
 #klasa za materijal koji će se raspadati
 class RadioaktivniMaterijal:
     def __init__(self, pocetni_N, vrijeme, pol_raspad=None, konst_radraspad=None):
         #liste služe za crtanje grafova
-        self.pocenti_N = pocetni_N
+        self.pocetni_N = pocetni_N
         self.preostali_N = pocetni_N
         self.preostali_lista = [pocetni_N]
         self.raspadnuti_N = 0
@@ -15,6 +17,7 @@ class RadioaktivniMaterijal:
         self.konst_radraspad = konst_radraspad
         self.aktivnost_lista = []
         self.provjera()
+        self.x_os = 0
 
     # provjera se vrti da se vidi je li korisnik upisao vrijeme poluraspada ili konstantu radioaktivnog raspada
     def provjera(self):
@@ -34,16 +37,25 @@ class RadioaktivniMaterijal:
             self.raspadnuti_N += aktivnost
             self.preostali_lista.append(self.preostali_N)
             self.aktivnost_lista.append(aktivnost)
-        x_os = list(range(len(self.preostali_lista)))
-        plt.grid(True)
-        plt.plot(x_os, self.preostali_lista)
-        plt.xlim(0, None)
-        plt.ylim(0, None) 
-        plt.tight_layout()
-        plt.show()
+            self.x_os = list(range(self.vrijeme))
 
-Mipi = RadioaktivniMaterijal(1600, 100, pol_raspad=20)
+Mipi = RadioaktivniMaterijal(1600, 200, pol_raspad=10)
 Mipi.raspadni()
+
+fig, ax = plt.subplots()
+line = ax.plot(Mipi.x_os[0], Mipi.preostali_lista[0], label=f"Broj preostalih jezgara")[0]
+ax.set(xlim=[0, Mipi.vrijeme], ylim=[0, Mipi.pocetni_N], xlabel='Vrijeme [s]', ylabel='broj jezgara')
+ax.legend()
+
+def update(frame):
+    line.set_xdata(Mipi.x_os[:frame])
+    line.set_ydata(Mipi.preostali_lista[:frame])
+    return (line)
+
+ani = animation.FuncAnimation(fig=fig, func=update, frames=Mipi.vrijeme, interval=30)
+#plt.show()
+ani.save("graf.gif")
+
 
         
 

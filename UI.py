@@ -1,7 +1,6 @@
-import pygame, sys, os, warnings, time #,pygamepopup
+import pygame, sys, os, warnings, time, gif_pygame
 warnings.filterwarnings("ignore", category=UserWarning, message=".*iCCP.*")
 pygame.init() #instalira i učitava sve pygame module
-#pygamepopup.init()
 
 from Simulacija import * #uzmemo sve iz naše simulacije
 
@@ -17,6 +16,7 @@ FPS = 60
 #Slike
 MAIN_BG = pygame.image.load(os.path.join("Assets", "zelena_pozadina.jpg")).convert_alpha()
 NASLOV = pygame.image.load(os.path.join("Assets", "Radioaktivni-Raspad-4-7-2024.png")).convert_alpha()
+GRAF = gif_pygame.load("graf.gif")
 
 #Klasa za gumbove
 class Button:
@@ -29,7 +29,6 @@ class Button:
         self.font = pygame.font.Font(None, text_size)
         self.text_surface = self.font.render(text_input, False, text_color)
         self.text_rectangle = self.text_surface.get_rect(center = self.rectangle.center)
-        self.player_number = 0
 
     def update(self, screen):
         pygame.draw.rect(screen, self.rectangle_color, self.rectangle)
@@ -42,6 +41,47 @@ class Button:
     
     def changeButtonColor(self):
         self.rectangle_color = self.rectangle_hovering_color
+
+class UserInput:
+    def __init__(self, text_size, text_color, rectangle_width_and_height, rectangle_color, rectangle_hovering_color, position):
+        self.rectangle = pygame.Rect((position[0]-(rectangle_width_and_height[0]/2), position[1]-(rectangle_width_and_height[1]/2)), rectangle_width_and_height)
+        self.rectangle_color, self.rectangle_hovering_color = rectangle_color, rectangle_hovering_color
+        self.text_input = ""
+        self.font = pygame.font.Font(None, text_size)
+        self.text_color = text_color
+        self.update_text_surface()
+        self.active = False
+
+    def update_text_surface(self):
+        self.text_surface = self.font.render(self.text_input, False, self.text_color)
+        self.text_rectangle = self.text_surface.get_rect(left=self.rectangle.left + 30, centery=self.rectangle.centery)
+
+    def update(self, screen):
+        pygame.draw.rect(screen, self.rectangle_color, self.rectangle)
+        screen.blit(self.text_surface, self.text_rectangle)
+
+    def changeButtonColor(self, mouse_position):
+        if self.active:
+            self.rectangle_color = self.rectangle_hovering_color
+        elif self.rectangle.collidepoint(mouse_position):
+            self.rectangle_color = self.rectangle_hovering_color
+        else:
+            self.rectangle_color = (0, 0, 0)
+
+    def handle_eventove(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if self.rectangle.collidepoint(event.pos):
+                self.active = True
+            else:
+                self.active = False
+        elif event.type == pygame.KEYDOWN and self.active:
+            if event.key == pygame.K_BACKSPACE:
+                self.text_input = self.text_input[:-1]
+            elif event.key == pygame.K_RETURN:
+                self.active = False
+            elif len(self.text_input) < 2:
+                self.text_input += event.unicode
+            self.text_surface = self.font.render(self.text_input, False, self.text_color)
 
 def escape_screen():
     transparent_background = pygame.Surface((WIDTH, HEIGHT))
@@ -81,30 +121,6 @@ def escape_screen():
         pygame.display.update()
         clock.tick(FPS)
 
-class Slider:
-    def __init__(self, pos:tuple, size:tuple, initial_val:float, min:int, max:int):
-        self.pos = pos
-        self.size = size
-
-        self.slider_left = self.pos[0] - (size[0]//2)
-        self.slider_right = self.pos[0] + (size[0]//2)
-        self.slider_top = self.pos[1] - (size[1]//2)
-
-        self.min = min
-        self.max = max
-        self.initial_val = (self.slider_right - self.slider_left)*initial_val #u postotcima
-
-        self.rect = pygame.Rect(self.slider_left, self.slider_top, self.size[0], self.size[1])
-        self.gumb_rect = pygame.Rect(self.slider_left + self.initial_val - 5, self.slider_top, 10, self.size[1])
-
-    def move_slider(self, mouse_pos):
-        self.gumb_rect.centerx = mouse_pos[0]
-
-    def render(self, SCREEN):
-        pygame.draw.rect(SCREEN, "dark grey", self.rect)
-        pygame.draw.rect(SCREEN, "blue  ", self.gumb_rect)
-
-
 element = RadioaktivniMaterijal(1600, 100, pol_raspad=20)
 def main():
     global element
@@ -115,18 +131,12 @@ def main():
         SCREEN.blit(MAIN_BG, (0,0))
         SCREEN.blit(NASLOV, (75,0))
 
-        kliznica = Slider((576,800), (100, 30), 0.5, 0, 100)
         DALJE_GUMB = Button("DALJE", 35, "White", (200, 100), "Black", "Gray", (576,500))
         IZADI_GUMB = Button("IZAĐI", 35, "White", (200, 100), "Black", "Gray", (576,650))
         for gumb in [DALJE_GUMB, IZADI_GUMB]:
             if gumb.checkForCollision(mouse_position):
                 gumb.changeButtonColor()
             gumb.update(SCREEN)
-
-        for slider in [kliznica]:
-            if slider.rect.collidepoint(mouse_position) and mouse[0]:
-                slider.move_slider(mouse_position)
-            slider.render(SCREEN)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -150,12 +160,14 @@ def main():
         clock.tick(FPS)
 
 def simulacija():
+    POLURASPAD = UserInput(40, "White", (200, 100), "Black", "Gray", (576,500))
     while True:
         SCREEN.fill("#C1E1C1")
+        GRAF.render(SCREEN, (50,50))
         mouse_position = pygame.mouse.get_pos()
 
-
         for event in pygame.event.get():
+            POLURASPAD.handle_eventove(event)
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
@@ -167,6 +179,10 @@ def simulacija():
                     pass
             if event.type == pygame.MOUSEBUTTONDOWN:
                 pass
+
+        for gumb in [POLURASPAD]:
+            gumb.changeButtonColor(mouse_position)
+            gumb.update(SCREEN)
 
         pygame.display.update()
         clock.tick(FPS)
