@@ -21,10 +21,16 @@ class RadioaktivniMaterijal:
 
     # provjera se vrti da se vidi je li korisnik upisao vrijeme poluraspada ili konstantu radioaktivnog raspada
     def provjera(self):
-        if self.pol_raspad is not None:
+        if self.pol_raspad != None:
             self.konst_radraspad = math.log(2) / self.pol_raspad
-        elif self.konst_radraspad is not None:
+        elif self.konst_radraspad != None:
             self.pol_raspad = math.log(2) / self.konst_radraspad
+        
+        
+    def update(self,frame):
+        self.line.set_xdata(self.x_os[:frame])
+        self.line.set_ydata(self.preostali_lista[:frame])
+        return (self.line)
 
     #funkcija koja raspada materijal
     def raspadni(self):
@@ -38,23 +44,13 @@ class RadioaktivniMaterijal:
             self.preostali_lista.append(self.preostali_N)
             self.aktivnost_lista.append(aktivnost)
             self.x_os = list(range(self.vrijeme))
-
-Mipi = RadioaktivniMaterijal(1600, 200, pol_raspad=10)
-Mipi.raspadni()
-
-fig, ax = plt.subplots()
-line = ax.plot(Mipi.x_os[0], Mipi.preostali_lista[0], label=f"Broj preostalih jezgara")[0]
-ax.set(xlim=[0, Mipi.vrijeme], ylim=[0, Mipi.pocetni_N], xlabel='Vrijeme [s]', ylabel='broj jezgara')
-ax.legend()
-
-def update(frame):
-    line.set_xdata(Mipi.x_os[:frame])
-    line.set_ydata(Mipi.preostali_lista[:frame])
-    return (line)
-
-ani = animation.FuncAnimation(fig=fig, func=update, frames=Mipi.vrijeme, interval=30)
-#plt.show()
-ani.save("graf.gif")
+        fig, ax = plt.subplots()
+        self.line = ax.plot(self.x_os[0], self.preostali_lista[0], label=f"Broj preostalih jezgara")[0]
+        ax.set(xlim=[0, self.vrijeme], ylim=[0, self.pocetni_N], xlabel='Vrijeme [s]', ylabel='broj jezgara')
+        ax.legend()
+        ani = animation.FuncAnimation(fig=fig, func=self.update, frames=self.vrijeme, interval=30, repeat=False)
+        #plt.show()
+        ani.save("graf.gif")
 
 
         
