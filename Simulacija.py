@@ -21,10 +21,11 @@ class RadioaktivniMaterijal:
 
     # provjera se vrti da se vidi je li korisnik upisao vrijeme poluraspada ili konstantu radioaktivnog raspada
     def provjera(self):
-        if self.pol_raspad is not None:
+        if self.pol_raspad != None:
             self.konst_radraspad = math.log(2) / self.pol_raspad
-        elif self.konst_radraspad is not None:
+        elif self.konst_radraspad != None:
             self.pol_raspad = math.log(2) / self.konst_radraspad
+        
         
     def update(self,frame):
         self.line.set_xdata(self.x_os[:frame])
@@ -48,6 +49,7 @@ class RadioaktivniMaterijal:
         ax.set(xlim=[0, self.vrijeme], ylim=[0, self.pocetni_N], xlabel='Vrijeme [s]', ylabel='broj jezgara')
         ax.legend()
         ani = animation.FuncAnimation(fig=fig, func=self.update, frames=self.vrijeme, interval=30, repeat=False)
+        #plt.show()
         ani.save("graf.gif")
 
 

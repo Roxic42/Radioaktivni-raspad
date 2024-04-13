@@ -42,7 +42,7 @@ class Button:
         self.rectangle_color = self.rectangle_hovering_color
 
 class UserInput:
-    def __init__(self, pocetna_vrijednost, text_size, text_color, rectangle_width_and_height, rectangle_color, rectangle_hovering_color, position):
+    def __init__(self, pocetna_vrijednost, text_size, text_color, rectangle_width_and_height, rectangle_color, rectangle_hovering_color, position, limit):
         self.rectangle = pygame.Rect((position[0]-(rectangle_width_and_height[0]/2), position[1]-(rectangle_width_and_height[1]/2)), rectangle_width_and_height)
         self.rectangle_color, self.rectangle_hovering_color = rectangle_color, rectangle_hovering_color
         self.text_input = pocetna_vrijednost
@@ -50,6 +50,7 @@ class UserInput:
         self.text_color = text_color
         self.update_text_surface()
         self.active = False
+        self.limit = limit
 
     def update_text_surface(self):
         self.text_surface = self.font.render(self.text_input, False, self.text_color)
@@ -78,7 +79,7 @@ class UserInput:
                 self.text_input = self.text_input[:-1]
             elif event.key == pygame.K_RETURN:
                 self.active = False
-            elif len(self.text_input) < 2:
+            elif len(self.text_input) < self.limit:
                 self.text_input += event.unicode
             self.text_surface = self.font.render(self.text_input, False, self.text_color)
 
@@ -120,7 +121,7 @@ def escape_screen():
         pygame.display.update()
         clock.tick(FPS)
 
-element = RadioaktivniMaterijal(1600, 100, pol_raspad=5)
+
 def main():
     if os.path.exists("graf.gif"):
         os.remove("graf.gif")
@@ -163,17 +164,22 @@ def main():
         clock.tick(FPS)
 
 def namjestanje_screen():
-    global element
+    global pocetni_N, vrijeme, pol_raspad
+    pocetni_N = 1600
+    vrijeme = 150
+    pol_raspad = 20
     if os.path.exists("graf.gif"):
         os.remove("graf.gif")
     else:
         pass
-    POLURASPAD = UserInput(f"{element.pol_raspad}", 40, "White", (100, 50), "Black", "Gray", (976,200))
+    POCETNI = UserInput(f"{pocetni_N}", 40, "white", (100, 50), "Black", "Green", (976,200), 5)
+    VRIJEME = UserInput(f"{vrijeme}", 40, "white", (100, 50), "Black", "Green", (976,300), 5)
+    POLURASPAD = UserInput(f"{pol_raspad}", 40, "white", (100, 50), "Black", "Green", (976,400), 5)
     while True:
         SCREEN.fill("#C1E1C1")
         mouse_position = pygame.mouse.get_pos()
 
-        RASPADNI = Button("Raspadni element", 40, "White", (200, 100), "Black", "Gray", (976,800))
+        RASPADNI = Button("Raspadni element", 40, "White", (300, 100), "Black", "Gray", (976,800))
 
         for gumb in [RASPADNI]:
             if gumb.checkForCollision(mouse_position):
@@ -183,7 +189,13 @@ def namjestanje_screen():
         for event in pygame.event.get():
             POLURASPAD.handle_eventove(event)
             if not POLURASPAD.active:
-                element.pol_raspad = int(POLURASPAD.text_input)
+                pol_raspad = int(POLURASPAD.text_input)
+            VRIJEME.handle_eventove(event)
+            if not VRIJEME.active:
+                vrijeme = int(VRIJEME.text_input)
+            POCETNI.handle_eventove(event)
+            if not POCETNI.active:
+                pocetni_N = int(POCETNI.text_input)
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
@@ -200,7 +212,7 @@ def namjestanje_screen():
                 pass
 
 
-        for gumb in [POLURASPAD]:
+        for gumb in [POCETNI, VRIJEME, POLURASPAD]:
             gumb.changeButtonColor(mouse_position)
             gumb.update(SCREEN)
 
@@ -208,14 +220,16 @@ def namjestanje_screen():
         clock.tick(FPS)
 
 def simulacija():
-    global element
+    global pocetni_N, vrijeme, pol_raspad
     if os.path.exists("graf.gif"):
         os.remove("graf.gif")
     else:
         pass
+    element = RadioaktivniMaterijal(pocetni_N, vrijeme, pol_raspad=pol_raspad)
+    print(f"{element.pocetni_N}, {element.vrijeme}, {element.pol_raspad}")
     element.raspadni()
     GRAF = gif_pygame.load("graf.gif")
-    POLURASPAD = UserInput(f"{element.pol_raspad}", 40, "White", (100, 50), "Black", "Gray", (976,200))
+    POLURASPAD = UserInput(f"{element.pol_raspad}", 40, "White", (100, 50), "Black", "Gray", (976,200), 5)
     while True:
         SCREEN.fill("#C1E1C1")
         mouse_position = pygame.mouse.get_pos()
