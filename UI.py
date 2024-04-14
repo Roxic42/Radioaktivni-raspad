@@ -57,9 +57,9 @@ class UserInput:
         self.text_color = text_color
         #stvaranje texta iznad textbox gumba koji objašnjava što se unosi
         self.naslov_text = naslov_text
+        self.naslov_color = naslov_color
         self.naslov_surface = self.font.render(self.naslov_text, False, self.naslov_color)
         self.naslov_rectangle = self.naslov_surface.get_rect(left=self.rectangle.left, top=self.rectangle.top - text_size)
-        self.naslov_color = naslov_color
         self.update_text_surface() #update se stalno provjerava jer mi upisujemo novi text
         self.active = False #je li se u njega upisuje ili ne
         self.limit = limit #broj koji se može napisat
@@ -96,9 +96,11 @@ class UserInput:
                 self.text_input = self.text_input[:-1]
             elif event.key == pygame.K_RETURN:
                 self.active = False
-            elif len(self.text_input) < self.limit:
-                self.text_input += event.unicode
-            self.text_surface = self.font.render(self.text_input, False, self.text_color)
+            else:
+                if event.unicode.isdigit() and not (self.text_input == '' and event.unicode == '0'): #neda nam da upišemo samo 0 ili bilo što što nije broj
+                    if len(self.text_input) < self.limit:
+                        self.text_input += event.unicode
+            self.text_surface = self.font.render(self.text_input, True, self.text_color)
 
 #funkcija za escape screen
 def escape_screen():
@@ -195,8 +197,8 @@ def namjestanje_screen():
     else:
         pass
     POCETNI = UserInput("Početni broj atoma:", "Black",f"{pocetni_N}", 40, "white", (100, 50), "Black", "Green", (176,200), 5)
-    VRIJEME = UserInput("Vrijeme trajanja simulacije [s]:", "Black",f"{vrijeme}", 40, "white", (100, 50), "Black", "Green", (176,300), 5)
-    POLURASPAD = UserInput("Vrijeme poluraspada [s]:", "Black",f"{pol_raspad}", 40, "white", (100, 50), "Black", "Green", (176,400), 5)
+    VRIJEME = UserInput("Vrijeme trajanja simulacije u koracima:", "Black",f"{vrijeme}", 40, "white", (100, 50), "Black", "Green", (176,300), 5)
+    POLURASPAD = UserInput("Vrijeme poluraspada u koracima:", "Black",f"{pol_raspad}", 40, "white", (100, 50), "Black", "Green", (176,400), 5)
     naslov_font = pygame.font.Font(None, 100)
     naslov_surface = naslov_font.render("NAMJESTI VARIJABLE", False, "Black")
     naslov_rectangle = naslov_surface.get_rect(topleft = (50, 20))
@@ -264,14 +266,20 @@ def simulacija():
     preostali_rectangle = preostali_surface.get_rect(topleft = (700, 100))
     raspadnuti_surface = text_font.render(f"BROJ RASPADNUTIH ATOMA: {element.raspadnuti_N}", False, "Black")
     raspadnuti_rectangle = raspadnuti_surface.get_rect(topleft = (700, 150))
+    aktivnost_surface = text_font.render(f"NAJVIŠA AKTIVNOST: {max(element.aktivnost_lista)}", False, "Black")
+    aktivnost_rectangle = aktivnost_surface.get_rect(topleft = (700, 200))
+    konst_surface = text_font.render(f"KONSTANTA RADIOAKTIVNOG RASPADA:\n{element.konst_radraspad}", False, "Black")
+    konst_rectangle = konst_surface.get_rect(topleft = (700, 250))
     while True:
         SCREEN.fill("#C1E1C1")
         SCREEN.blit(raspadnuti_surface, raspadnuti_rectangle)
         SCREEN.blit(preostali_surface, preostali_rectangle)
+        SCREEN.blit(aktivnost_surface, aktivnost_rectangle)
+        SCREEN.blit(konst_surface, konst_rectangle)
         mouse_position = pygame.mouse.get_pos()
         GRAF.render(SCREEN, (50,50))
 
-        RASPADNI = Button("Ponovo namjesti varijable", 40, "White", (400, 100), "Black", "Gray", (976,800))
+        RASPADNI = Button("Ponovo namjesti varijable", 40, "White", (450, 100), "Black", "Gray", (876,800))
 
         for gumb in [RASPADNI]:
             if gumb.checkForCollision(mouse_position):
