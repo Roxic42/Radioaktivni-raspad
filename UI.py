@@ -42,7 +42,7 @@ class Button:
         self.rectangle_color = self.rectangle_hovering_color
 
 class UserInput:
-    def __init__(self, pocetna_vrijednost, text_size, text_color, rectangle_width_and_height, rectangle_color, rectangle_hovering_color, position, limit):
+    def __init__(self, naslov_text, pocetna_vrijednost, text_size, text_color, rectangle_width_and_height, rectangle_color, rectangle_hovering_color, position, limit):
         self.rectangle = pygame.Rect((position[0]-(rectangle_width_and_height[0]/2), position[1]-(rectangle_width_and_height[1]/2)), rectangle_width_and_height)
         self.rectangle_color, self.rectangle_hovering_color = rectangle_color, rectangle_hovering_color
         self.text_input = pocetna_vrijednost
@@ -51,14 +51,18 @@ class UserInput:
         self.update_text_surface()
         self.active = False
         self.limit = limit
+        self.naslov_text = naslov_text
+        self.naslov_surface = self.font.render(self.naslov_text, False, self.text_color)
+        self.naslov_rectangle = self.naslov_surface.get_rect(left=self.rectangle.left, top=self.rectangle.top - text_size)
 
     def update_text_surface(self):
         self.text_surface = self.font.render(self.text_input, False, self.text_color)
-        self.text_rectangle = self.text_surface.get_rect(left=self.rectangle.left + 30, centery=self.rectangle.centery)
+        self.text_rectangle = self.text_surface.get_rect(left=self.rectangle.left + 10, centery=self.rectangle.centery)
 
     def update(self, screen):
         pygame.draw.rect(screen, self.rectangle_color, self.rectangle)
         screen.blit(self.text_surface, self.text_rectangle)
+        screen.blit(self.naslov_surface, self.naslov_rectangle)
 
     def changeButtonColor(self, mouse_position):
         if self.active:
@@ -172,9 +176,9 @@ def namjestanje_screen():
         os.remove("graf.gif")
     else:
         pass
-    POCETNI = UserInput(f"{pocetni_N}", 40, "white", (100, 50), "Black", "Green", (976,200), 5)
-    VRIJEME = UserInput(f"{vrijeme}", 40, "white", (100, 50), "Black", "Green", (976,300), 5)
-    POLURASPAD = UserInput(f"{pol_raspad}", 40, "white", (100, 50), "Black", "Green", (976,400), 5)
+    POCETNI = UserInput("Početni broj atoma:",f"{pocetni_N}", 40, "white", (100, 50), "Black", "Green", (176,200), 5)
+    VRIJEME = UserInput("Vrijeme trajanja simulacije:",f"{vrijeme}", 40, "white", (100, 50), "Black", "Green", (176,300), 5)
+    POLURASPAD = UserInput("Vrijeme poluraspada", f"{pol_raspad}", 40, "white", (100, 50), "Black", "Green", (176,400), 5)
     while True:
         SCREEN.fill("#C1E1C1")
         mouse_position = pygame.mouse.get_pos()
@@ -229,13 +233,12 @@ def simulacija():
     print(f"{element.pocetni_N}, {element.vrijeme}, {element.pol_raspad}")
     element.raspadni()
     GRAF = gif_pygame.load("graf.gif")
-    POLURASPAD = UserInput(f"{element.pol_raspad}", 40, "White", (100, 50), "Black", "Gray", (976,200), 5)
     while True:
         SCREEN.fill("#C1E1C1")
         mouse_position = pygame.mouse.get_pos()
         GRAF.render(SCREEN, (50,50))
 
-        RASPADNI = Button("Raspadni element", 40, "White", (200, 100), "Black", "Gray", (976,800))
+        RASPADNI = Button("Ponovo namjesti varijable", 40, "White", (400, 100), "Black", "Gray", (976,800))
 
         for gumb in [RASPADNI]:
             if gumb.checkForCollision(mouse_position):
@@ -243,9 +246,6 @@ def simulacija():
             gumb.update(SCREEN)
 
         for event in pygame.event.get():
-            POLURASPAD.handle_eventove(event)
-            if not POLURASPAD.active:
-                element.pol_raspad = int(POLURASPAD.text_input)
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
@@ -257,13 +257,9 @@ def simulacija():
                     pass
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if RASPADNI.checkForCollision(mouse_position):
-                    if simulacija():
+                    if namjestanje_screen():
                         break
                 pass
-
-        for gumb in [POLURASPAD]:
-            gumb.changeButtonColor(mouse_position)
-            gumb.update(SCREEN)
 
         pygame.display.update()
         clock.tick(FPS)
