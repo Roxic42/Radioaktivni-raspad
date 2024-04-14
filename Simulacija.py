@@ -69,7 +69,6 @@ class RadioaktivniMaterijal:
         #plt.show()
         ani.save("graf.gif")
 
-
         
 
 
