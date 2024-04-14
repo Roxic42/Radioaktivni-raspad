@@ -42,17 +42,18 @@ class Button:
         self.rectangle_color = self.rectangle_hovering_color
 
 class UserInput:
-    def __init__(self, naslov_text, pocetna_vrijednost, text_size, text_color, rectangle_width_and_height, rectangle_color, rectangle_hovering_color, position, limit):
+    def __init__(self, naslov_text, naslov_color, pocetna_vrijednost, text_size, text_color, rectangle_width_and_height, rectangle_color, rectangle_hovering_color, position, limit):
         self.rectangle = pygame.Rect((position[0]-(rectangle_width_and_height[0]/2), position[1]-(rectangle_width_and_height[1]/2)), rectangle_width_and_height)
         self.rectangle_color, self.rectangle_hovering_color = rectangle_color, rectangle_hovering_color
         self.text_input = pocetna_vrijednost
         self.font = pygame.font.Font(None, text_size)
         self.text_color = text_color
+        self.naslov_color = naslov_color
         self.update_text_surface()
         self.active = False
         self.limit = limit
         self.naslov_text = naslov_text
-        self.naslov_surface = self.font.render(self.naslov_text, False, self.text_color)
+        self.naslov_surface = self.font.render(self.naslov_text, False, self.naslov_color)
         self.naslov_rectangle = self.naslov_surface.get_rect(left=self.rectangle.left, top=self.rectangle.top - text_size)
 
     def update_text_surface(self):
@@ -176,11 +177,15 @@ def namjestanje_screen():
         os.remove("graf.gif")
     else:
         pass
-    POCETNI = UserInput("Početni broj atoma:",f"{pocetni_N}", 40, "white", (100, 50), "Black", "Green", (176,200), 5)
-    VRIJEME = UserInput("Vrijeme trajanja simulacije:",f"{vrijeme}", 40, "white", (100, 50), "Black", "Green", (176,300), 5)
-    POLURASPAD = UserInput("Vrijeme poluraspada", f"{pol_raspad}", 40, "white", (100, 50), "Black", "Green", (176,400), 5)
+    POCETNI = UserInput("Početni broj atoma:", "Black",f"{pocetni_N}", 40, "white", (100, 50), "Black", "Green", (176,200), 5)
+    VRIJEME = UserInput("Vrijeme trajanja simulacije [s]:", "Black",f"{vrijeme}", 40, "white", (100, 50), "Black", "Green", (176,300), 5)
+    POLURASPAD = UserInput("Vrijeme poluraspada [s]:", "Black",f"{pol_raspad}", 40, "white", (100, 50), "Black", "Green", (176,400), 5)
+    naslov_font = pygame.font.Font(None, 100)
+    naslov_surface = naslov_font.render("NAMJESTI VARIJABLE", False, "Black")
+    naslov_rectangle = naslov_surface.get_rect(topleft = (50, 20))
     while True:
         SCREEN.fill("#C1E1C1")
+        SCREEN.blit(naslov_surface, naslov_rectangle)
         mouse_position = pygame.mouse.get_pos()
 
         RASPADNI = Button("Raspadni element", 40, "White", (300, 100), "Black", "Gray", (976,800))
@@ -233,8 +238,15 @@ def simulacija():
     print(f"{element.pocetni_N}, {element.vrijeme}, {element.pol_raspad}")
     element.raspadni()
     GRAF = gif_pygame.load("graf.gif")
+    text_font = pygame.font.Font(None, 30)
+    preostali_surface = text_font.render(f"BROJ PREOSTALIH ATOMA: {element.preostali_N}", False, "Black")
+    preostali_rectangle = preostali_surface.get_rect(topleft = (700, 100))
+    raspadnuti_surface = text_font.render(f"BROJ RASPADNUTIH ATOMA: {element.raspadnuti_N}", False, "Black")
+    raspadnuti_rectangle = raspadnuti_surface.get_rect(topleft = (700, 150))
     while True:
         SCREEN.fill("#C1E1C1")
+        SCREEN.blit(raspadnuti_surface, raspadnuti_rectangle)
+        SCREEN.blit(preostali_surface, preostali_rectangle)
         mouse_position = pygame.mouse.get_pos()
         GRAF.render(SCREEN, (50,50))
 
