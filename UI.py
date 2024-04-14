@@ -14,8 +14,8 @@ clock = pygame.time.Clock()
 FPS = 60
 
 #Slike
-MAIN_BG = pygame.image.load(os.path.join("zelena_pozadina.jpg")).convert_alpha()
-NASLOV = pygame.image.load(os.path.join("Radioaktivni-Raspad-4-7-2024.png")).convert_alpha()
+MAIN_BG = pygame.image.load(os.path.join("Assets", "zelena_pozadina.jpg")).convert_alpha()
+NASLOV = pygame.image.load(os.path.join("Assets","Radioaktivni-Raspad-4-7-2024.png")).convert_alpha()
 
 #Klasa za gumbove
 class Button:
