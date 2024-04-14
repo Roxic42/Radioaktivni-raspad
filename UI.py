@@ -196,9 +196,9 @@ def namjestanje_screen():
         os.remove("graf.gif")
     else:
         pass
-    POCETNI = UserInput("Početni broj atoma:", "Black",f"{pocetni_N}", 40, "white", (100, 50), "Black", "Green", (176,200), 5)
-    VRIJEME = UserInput("Vrijeme trajanja simulacije u koracima:", "Black",f"{vrijeme}", 40, "white", (100, 50), "Black", "Green", (176,300), 5)
-    POLURASPAD = UserInput("Vrijeme poluraspada u koracima:", "Black",f"{pol_raspad}", 40, "white", (100, 50), "Black", "Green", (176,400), 5)
+    POCETNI = UserInput("Početni broj atoma u elementu:", "Black",f"{pocetni_N}", 40, "white", (100, 50), "Black", "Green", (176,200), 5)
+    VRIJEME = UserInput("Vrijeme trajanja simulacije [s]:", "Black",f"{vrijeme}", 40, "white", (100, 50), "Black", "Green", (176,300), 5)
+    POLURASPAD = UserInput("Vrijeme poluraspada [s]:", "Black",f"{pol_raspad}", 40, "white", (100, 50), "Black", "Green", (176,400), 5)
     naslov_font = pygame.font.Font(None, 100)
     naslov_surface = naslov_font.render("NAMJESTI VARIJABLE", False, "Black")
     naslov_rectangle = naslov_surface.get_rect(topleft = (50, 20))
@@ -266,9 +266,9 @@ def simulacija():
     preostali_rectangle = preostali_surface.get_rect(topleft = (700, 100))
     raspadnuti_surface = text_font.render(f"BROJ RASPADNUTIH ATOMA: {element.raspadnuti_N}", False, "Black")
     raspadnuti_rectangle = raspadnuti_surface.get_rect(topleft = (700, 150))
-    aktivnost_surface = text_font.render(f"NAJVIŠA AKTIVNOST: {max(element.aktivnost_lista)} atoma/koraku", False, "Black")
+    aktivnost_surface = text_font.render(f"NAJVIŠA AKTIVNOST: {max(element.aktivnost_lista)} [Bq]", False, "Black")
     aktivnost_rectangle = aktivnost_surface.get_rect(topleft = (700, 200))
-    konst_surface = text_font.render(f"KONSTANTA RADIOAKTIVNOG RASPADA:\n{element.konst_radraspad} korak^-1", False, "Black")
+    konst_surface = text_font.render(f"KONSTANTA RADIOAKTIVNOG RASPADA:\n{element.konst_radraspad} s^-1", False, "Black")
     konst_rectangle = konst_surface.get_rect(topleft = (700, 250))
     while True:
         SCREEN.fill("#C1E1C1")
