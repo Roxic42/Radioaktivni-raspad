@@ -45,7 +45,7 @@ class RadioaktivniMaterijal:
         for t in range(self.vrijeme): #za svaki korak se provjerava svaki atom
             aktivnost = 0 
             for atom in range(self.preostali_N): #za svaki atom se gleda hoće li se raspast ili ne
-                if random.random() < 1 - math.exp(-self.konst_radraspad):
+                if random.random() < 1 - math.exp(-self.konst_radraspad): #šansa de se atom raspadne prema Monte Carlo metodi
                     aktivnost += 1 #ako se raspao atom, aktivnost se u tom koraku povećava
             self.preostali_N -= aktivnost #za svaki korak se miče iz preostalih atoma onoliko koliko ih se raspalo (aktivnost)
             self.raspadnuti_N += aktivnost #za svaki korak se dodaje u raspadnute atome onoliko koliko ih se raspalo (aktivnost)
