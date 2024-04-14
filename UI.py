@@ -14,8 +14,8 @@ clock = pygame.time.Clock()
 FPS = 60
 
 #Slike
-MAIN_BG = pygame.image.load(os.path.join("Assets", "zelena_pozadina.jpg")).convert_alpha()
-NASLOV = pygame.image.load(os.path.join("Assets", "Radioaktivni-Raspad-4-7-2024.png")).convert_alpha()
+MAIN_BG = pygame.image.load(os.path.join("zelena_pozadina.jpg")).convert_alpha()
+NASLOV = pygame.image.load(os.path.join("Radioaktivni-Raspad-4-7-2024.png")).convert_alpha()
 
 #Klasa za gumbove
 class Button:
@@ -266,9 +266,9 @@ def simulacija():
     preostali_rectangle = preostali_surface.get_rect(topleft = (700, 100))
     raspadnuti_surface = text_font.render(f"BROJ RASPADNUTIH ATOMA: {element.raspadnuti_N}", False, "Black")
     raspadnuti_rectangle = raspadnuti_surface.get_rect(topleft = (700, 150))
-    aktivnost_surface = text_font.render(f"NAJVIŠA AKTIVNOST: {max(element.aktivnost_lista)}", False, "Black")
+    aktivnost_surface = text_font.render(f"NAJVIŠA AKTIVNOST: {max(element.aktivnost_lista)} atoma/koraku", False, "Black")
     aktivnost_rectangle = aktivnost_surface.get_rect(topleft = (700, 200))
-    konst_surface = text_font.render(f"KONSTANTA RADIOAKTIVNOG RASPADA:\n{element.konst_radraspad}", False, "Black")
+    konst_surface = text_font.render(f"KONSTANTA RADIOAKTIVNOG RASPADA:\n{element.konst_radraspad} korak^-1", False, "Black")
     konst_rectangle = konst_surface.get_rect(topleft = (700, 250))
     while True:
         SCREEN.fill("#C1E1C1")
