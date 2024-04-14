@@ -20,7 +20,7 @@ NASLOV = pygame.image.load(os.path.join("Assets", "Radioaktivni-Raspad-4-7-2024.
 #Klasa za gumbove
 class Button:
     def __init__(self, text_input, text_size, text_color, rectangle_width_and_height, rectangle_color, rectangle_hovering_color, position):
-        #rectangle ispod teksta
+        #rectangle iza teksta
         self.rectangle = pygame.Rect((position[0]-(rectangle_width_and_height[0]/2), position[1]-(rectangle_width_and_height[1]/2)), rectangle_width_and_height)
         self.rectangle_color, self.rectangle_hovering_color = rectangle_color, rectangle_hovering_color
         #tekst u gumbu
@@ -29,42 +29,53 @@ class Button:
         self.text_surface = self.font.render(text_input, False, text_color)
         self.text_rectangle = self.text_surface.get_rect(center = self.rectangle.center)
 
+    #updatea se stanje gumba ovisno o tome collideamo li s njima
     def update(self, screen):
         pygame.draw.rect(screen, self.rectangle_color, self.rectangle)
         screen.blit(self.text_surface, self.text_rectangle)
 
+    #provjeravamo collision
     def checkForCollision(self, mouse_position):
         if mouse_position[0] in range(self.rectangle.left, self.rectangle.right) and mouse_position[1] in range(self.rectangle.top, self.rectangle.bottom):
             return True
         return False
     
+    #mijenja boju
     def changeButtonColor(self):
         self.rectangle_color = self.rectangle_hovering_color
 
+#klasa za textbox / gumb na koji se može pisat
 class UserInput:
     def __init__(self, naslov_text, naslov_color, pocetna_vrijednost, text_size, text_color, rectangle_width_and_height, rectangle_color, rectangle_hovering_color, position, limit):
+        #rectangle iza teksta koji se piše po njemu
         self.rectangle = pygame.Rect((position[0]-(rectangle_width_and_height[0]/2), position[1]-(rectangle_width_and_height[1]/2)), rectangle_width_and_height)
         self.rectangle_color, self.rectangle_hovering_color = rectangle_color, rectangle_hovering_color
+        #text koji se prikazuje na gumbu kad na njemu još ništa nismo napisali
         self.text_input = pocetna_vrijednost
+        #sve za font i text
         self.font = pygame.font.Font(None, text_size)
         self.text_color = text_color
-        self.naslov_color = naslov_color
-        self.update_text_surface()
-        self.active = False
-        self.limit = limit
+        #stvaranje texta iznad textbox gumba koji objašnjava što se unosi
         self.naslov_text = naslov_text
         self.naslov_surface = self.font.render(self.naslov_text, False, self.naslov_color)
         self.naslov_rectangle = self.naslov_surface.get_rect(left=self.rectangle.left, top=self.rectangle.top - text_size)
-
-    def update_text_surface(self):
+        self.naslov_color = naslov_color
+        self.update_text_surface() #update se stalno provjerava jer mi upisujemo novi text
+        self.active = False #je li se u njega upisuje ili ne
+        self.limit = limit #broj koji se može napisat
+        
+    #za upisivanje novog texta
+    def update_text_surface(self): 
         self.text_surface = self.font.render(self.text_input, False, self.text_color)
         self.text_rectangle = self.text_surface.get_rect(left=self.rectangle.left + 10, centery=self.rectangle.centery)
 
+    #updatea pozadinu gumba
     def update(self, screen):
         pygame.draw.rect(screen, self.rectangle_color, self.rectangle)
         screen.blit(self.text_surface, self.text_rectangle)
         screen.blit(self.naslov_surface, self.naslov_rectangle)
 
+    #mjenja boju gumba ovisno je li kliknut/upiuje li se nešto u njega
     def changeButtonColor(self, mouse_position):
         if self.active:
             self.rectangle_color = self.rectangle_hovering_color
@@ -73,6 +84,7 @@ class UserInput:
         else:
             self.rectangle_color = (0, 0, 0)
 
+    #doslovno rukuje svim eventovima
     def handle_eventove(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
             if self.rectangle.collidepoint(event.pos):
@@ -88,6 +100,7 @@ class UserInput:
                 self.text_input += event.unicode
             self.text_surface = self.font.render(self.text_input, False, self.text_color)
 
+#funkcija za escape screen
 def escape_screen():
     transparent_background = pygame.Surface((WIDTH, HEIGHT))
     transparent_background.fill("Black")
@@ -126,8 +139,9 @@ def escape_screen():
         pygame.display.update()
         clock.tick(FPS)
 
-
+#početni screen i općenito main funkcija UI-a
 def main():
+    #briše se slika grafa ako je ostala zapisana
     if os.path.exists("graf.gif"):
         os.remove("graf.gif")
     else:
@@ -168,11 +182,14 @@ def main():
         pygame.display.update()
         clock.tick(FPS)
 
+#screen na kojem se namještaju varijable
 def namjestanje_screen():
     global pocetni_N, vrijeme, pol_raspad
+    #neke pocetne vrijednosti koje se prikazuju na textboxu (lijepi graf ispadne)
     pocetni_N = 1600
     vrijeme = 150
     pol_raspad = 20
+    #briše se slika grafa ako je ostala zapisana
     if os.path.exists("graf.gif"):
         os.remove("graf.gif")
     else:
@@ -228,14 +245,18 @@ def namjestanje_screen():
         pygame.display.update()
         clock.tick(FPS)
 
+#simulacija
 def simulacija():
     global pocetni_N, vrijeme, pol_raspad
+    #briše se slika grafa ako je ostala zapisana
     if os.path.exists("graf.gif"):
         os.remove("graf.gif")
     else:
         pass
+    #stvara se element
     element = RadioaktivniMaterijal(pocetni_N, vrijeme, pol_raspad=pol_raspad)
     print(f"{element.pocetni_N}, {element.vrijeme}, {element.pol_raspad}")
+    #raspada se element i kreira graf
     element.raspadni()
     GRAF = gif_pygame.load("graf.gif")
     text_font = pygame.font.Font(None, 30)
